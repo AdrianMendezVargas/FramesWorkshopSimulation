@@ -1,0 +1,121 @@
+body{
+	font-family: 'Maven Pro', sans-serif;
+}
+
+.content{
+	max-height: 100vh;
+}
+
+.stats{
+	background-color: bisque;
+}
+
+.factory-container{
+	position: relative;
+	width: 945px;
+	height: 770.37px;
+	right: 0;
+}
+
+.obj{
+	position: absolute;
+	display: block;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: contain;
+}
+
+.factory{
+	z-index: 0;
+	right: 0;
+	width: 945px;
+	height: 770.37px;
+	background-image: url('assets/img/factory.svg');
+}
+
+.truck{
+	width: 150px;
+	height: 370px;
+	top: 0;
+	left: 42px;
+	background-image: url('assets/img/truck.svg');
+}
+
+.pack-machine, .paint-machine, .truck, .inspector{
+	z-index: 2;
+}
+
+.pack-machine{
+	width: 70px;
+	height: 70px;
+	top: 509px;
+	left: 220px;
+	background-image: url('assets/img/pack-machine.svg');
+}
+
+.paint-machine{
+	width: 70px;
+	height: 70px;
+	top: 240px;
+	left: 411px;
+	background-image: url('assets/img/paint-machine.svg');
+}
+
+.inspector{
+	width: 37px;
+	height: 37px;
+	top: 418px;
+	left: 462px;
+	background-image: url('assets/img/inspector.svg');
+}
+
+.warehouse{
+	width: 200px;
+	height: 106.79px;
+	top: 26px;
+	left: 349px;
+	background-image: url('assets/img/warehouse.svg');
+}
+
+/* Frame states */
+
+.frame{
+	transition-property: top, bottom, left, right;
+	transition-timing-function: linear;
+}
+
+.frame.disassembled {
+	width: 40px;
+	height: 40px;
+	background-image: url('assets/img/frame-parts.svg');
+}
+
+.frame.assembled {
+	width: 40px;
+	height: 40px;
+	background-image: url('assets/img/frame.svg');
+}
+
+.frame.state1 {
+	width: 60.83px;
+	height: 40px;
+	background-image: url('assets/img/frame-state1.svg');
+}
+
+.frame.state2 {
+	width: 51.37px;
+	height: 40px;
+	background-image: url('assets/img/frame-state2.svg');
+}
+
+.frame.painted {
+	width: 40px;
+	height: 40px;
+	background-image: url('assets/img/frame-painted.svg');
+}
+
+.frame.packed {
+	width: 40px;
+	height: 40px;
+	background-image: url('assets/img/box.svg');
+}
