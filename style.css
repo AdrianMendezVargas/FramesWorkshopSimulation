@@ -41,7 +41,7 @@ body{
 	background-image: url('assets/img/truck.svg');
 }
 
-.pack-machine, .paint-machine, .truck, .inspector{
+.pack-machine, .paint-machine, .truck, .inspector, .warehouse{
 	z-index: 2;
 }
 
@@ -82,15 +82,16 @@ body{
 .frame{
 	transition-property: top, bottom, left, right;
 	transition-timing-function: linear;
+	z-index: 1;
 }
 
-.frame.disassembled {
+.frame.disassembled, .frame.assembling {
 	width: 40px;
 	height: 40px;
 	background-image: url('assets/img/frame-parts.svg');
 }
 
-.frame.assembled {
+.frame.assembled, .frame.inWarehouse {
 	width: 40px;
 	height: 40px;
 	background-image: url('assets/img/frame.svg');
@@ -108,7 +109,7 @@ body{
 	background-image: url('assets/img/frame-state2.svg');
 }
 
-.frame.painted {
+.frame.painted, .frame.painting {
 	width: 40px;
 	height: 40px;
 	background-image: url('assets/img/frame-painted.svg');
