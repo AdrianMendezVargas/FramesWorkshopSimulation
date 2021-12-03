@@ -1,6 +1,6 @@
 body{
 	font-family: 'Maven Pro', sans-serif;
-	background-color: bisque;
+	background-color: #F3D3B6;
 }
 
 ::-webkit-scrollbar {
@@ -22,8 +22,13 @@ body{
 	max-height: 100vh;
 }
 
-.stats{
+.stats-container{
 	background-color: bisque;
+	max-height: 100vh;
+}
+
+.stats{
+	
 }
 
 .factory-container{
@@ -130,7 +135,7 @@ body{
 	background-image: url('assets/img/frame-state2.svg');
 }
 
-.frame.painted {
+.frame.painted, .frame.packing {
 	width: 40px;
 	height: 40px;
 	background-image: url('assets/img/frame-painted.svg');
@@ -148,4 +153,9 @@ p {
 
 h4 {
 	border-bottom: 2px solid orange;
+}
+
+input.form-control:focus{
+	outline: none;
+	box-shadow: none;
 }

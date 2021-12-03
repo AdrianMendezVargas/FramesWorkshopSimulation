@@ -15,19 +15,44 @@
 	
 	<div class="container-fluid p-0">
 		<div class="row gx-0 min-vh-100">
-			<div class="stats col-3 p-2 shadow-lg">
-				<h4 class="text-center">Indicadores</h4>
-				<p><strong>Horas transcurridas: </strong><span id="elapsedHoursSpan"></span></p>
-
-				<h4 class="text-center mt-3">Marcos</h4>
-				<p><strong>Marcos en espera: </strong><span id="framesInWaitingLineSpan"></span></p>
-				<p><strong>Marcos en contenedor: </strong><span id="framesInWarehousepan"></span></p>
-				<p><strong>Marcos siendo pintados: </strong><span id="framesInPaintingMachine"></span></p>
-				<p><strong>Marcos en rechazados: </strong><span id="rejectedFramesSpan"></span></p>
-				<p><strong>Marcos siendo empaquetados: </strong><span id="framesInPackingMachine"></span></p>
-				<p><strong>Marcos en terminados: </strong><span id="framesInTruckSpan"></span></p>
-
-				<button id="startButton" class="btn btn-warning mt-3" onclick="handleStartClick()">Iniciar simulacion</button>
+			<div class="stats-container col-3 shadow-lg d-flex flex-column">
+				<div class="d-flex flex-column stats overflow-auto p-2">
+					<h4 class="text-center">Indicadores</h4>
+					<p><strong>Horas transcurridas: </strong><span id="elapsedHoursSpan"></span></p>
+					<h4 class="text-center mt-3">Marcos</h4>
+					<p><strong>Marcos en espera: </strong><span id="framesInWaitingLineSpan"></span></p>
+					<p><strong>Marcos en contenedor: </strong><span id="framesInWarehousepan"></span></p>
+					<p><strong>Marcos siendo pintados: </strong><span id="framesInPaintingMachine"></span></p>
+					<p><strong>Marcos en rechazados: </strong><span id="rejectedFramesSpan"></span></p>
+					<p><strong>Marcos siendo empaquetados: </strong><span id="framesInPackingMachine"></span></p>
+					<p><strong>Marcos terminados: </strong><span id="framesInTruckSpan"></span></p>
+					
+					<h4 class="mt-3">Configuracion</h4>
+					<div class="form-floating mb-2">
+						<input type="number" class="form-control" id="hoursToSimulateInput" placeholder=".">
+						<label for="">Horas a simular</label>
+					</div>
+					<div class="form-floating mb-2">
+						<input type="number" class="form-control" id="elapseHoursBetweenGroupsInput" placeholder=".">
+						<label for="">Horas entre grupos de marcos</label>
+					</div>
+					<div class="form-floating mb-2">
+						<input type="number" class="form-control" id="requiredHoursInWareHouseInput" placeholder=".">
+						<label for="">Horas requeridas en almacen</label>
+					</div>
+					<div class="form-floating mb-2">
+						<input type="number" class="form-control" id="lineSpeedInput" placeholder=".">
+						<label for="">Velocidad de cinta (px/s)</label>
+					</div>
+					<div class="form-floating mb-2">
+						<input type="number" class="form-control" id="declineFrameProbabilityInput" placeholder=".">
+						<label for="">%Probabilidad rechazo de marco</label>
+					</div>
+					
+				</div>
+				<div class="d-flex mt-auto align-items-center shadow-lg">
+					<button id="startButton" class="btn btn-warning m-2" onclick="handleStartClick()">Iniciar simulacion</button>
+				</div>
 			</div>
 			<div class="col-9">
 				<div class="content container-fluid h-100 overflow-auto">
