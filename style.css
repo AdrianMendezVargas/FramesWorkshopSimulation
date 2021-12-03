@@ -1,6 +1,22 @@
 body{
 	font-family: 'Maven Pro', sans-serif;
+	background-color: bisque;
 }
+
+::-webkit-scrollbar {
+    width: 10px;
+	height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+	background-color: rgba(0, 0, 0, 0.5);
+	border-radius: 50px;
+}
+
 
 .content{
 	max-height: 100vh;
@@ -15,6 +31,8 @@ body{
 	width: 945px;
 	height: 770.37px;
 	right: 0;
+	background-image: url('assets/img/mosaic.jpeg');
+	background-size: 50px;
 }
 
 .obj{
@@ -35,10 +53,13 @@ body{
 
 .truck{
 	width: 150px;
-	height: 370px;
-	top: 0;
+	height: 372px;
+	top: 20px;
 	left: 42px;
 	background-image: url('assets/img/truck.svg');
+	transition-property: top;
+	transition-duration: 5s;
+	transition-timing-function: ease-in;
 }
 
 .pack-machine, .paint-machine, .truck, .inspector, .warehouse{
@@ -85,13 +106,13 @@ body{
 	z-index: 1;
 }
 
-.frame.disassembled, .frame.assembling {
+.frame.disassembled, .frame.assembling  {
 	width: 40px;
 	height: 40px;
 	background-image: url('assets/img/frame-parts.svg');
 }
 
-.frame.assembled, .frame.inWarehouse {
+.frame.assembled, .frame.inWarehouse , .frame.painting{
 	width: 40px;
 	height: 40px;
 	background-image: url('assets/img/frame.svg');
@@ -109,7 +130,7 @@ body{
 	background-image: url('assets/img/frame-state2.svg');
 }
 
-.frame.painted, .frame.painting {
+.frame.painted {
 	width: 40px;
 	height: 40px;
 	background-image: url('assets/img/frame-painted.svg');
@@ -119,4 +140,12 @@ body{
 	width: 40px;
 	height: 40px;
 	background-image: url('assets/img/box.svg');
+}
+
+p {
+	margin-bottom: 5px;
+}
+
+h4 {
+	border-bottom: 2px solid orange;
 }

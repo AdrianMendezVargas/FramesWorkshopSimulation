@@ -15,8 +15,19 @@
 	
 	<div class="container-fluid p-0">
 		<div class="row gx-0 min-vh-100">
-			<div class="stats col-3 p-2">
+			<div class="stats col-3 p-2 shadow-lg">
 				<h4 class="text-center">Indicadores</h4>
+				<p><strong>Horas transcurridas: </strong><span id="elapsedHoursSpan"></span></p>
+
+				<h4 class="text-center mt-3">Marcos</h4>
+				<p><strong>Marcos en espera: </strong><span id="framesInWaitingLineSpan"></span></p>
+				<p><strong>Marcos en contenedor: </strong><span id="framesInWarehousepan"></span></p>
+				<p><strong>Marcos siendo pintados: </strong><span id="framesInPaintingMachine"></span></p>
+				<p><strong>Marcos en rechazados: </strong><span id="rejectedFramesSpan"></span></p>
+				<p><strong>Marcos siendo empaquetados: </strong><span id="framesInPackingMachine"></span></p>
+				<p><strong>Marcos en terminados: </strong><span id="framesInTruckSpan"></span></p>
+
+				<button id="startButton" class="btn btn-warning mt-3" onclick="handleStartClick()">Iniciar simulacion</button>
 			</div>
 			<div class="col-9">
 				<div class="content container-fluid h-100 overflow-auto">
