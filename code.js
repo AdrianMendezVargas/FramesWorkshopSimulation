@@ -7,11 +7,16 @@ class Frame{
 		this.HTMLElement = this.getHTMLElement()
 		this.CarpenterNumber = 0
 		this.WasRejected = false
+		this.IsControl = false
 		
 		state.frames.push(this)
 	}
 	async moveToNextStage() {
-		
+
+		if (timeOver()) {
+			return
+		}
+
 		if (this.State == FrameStates.disassembled) {
 			while (this.IsCarpenterBusy()) {
 				await sleep(1000)
@@ -46,6 +51,10 @@ class Frame{
 	}
 
 	IsCarpenterBusy() {
+		if (state.elapsedHours >= config.hoursToSimulate) {
+			return true
+		}
+
 		let carpenterWatingLine = state.frames.filter(frame => frame.CarpenterNumber == this.CarpenterNumber)
 		let isCarpenterBusy = carpenterWatingLine.some(frame => frame.HTMLElement.classList.contains(FrameStates.assembling))
 		return isCarpenterBusy
@@ -73,6 +82,7 @@ class Frame{
 
 	async moveToPackingMachine() {
 		//Moving down to inspector
+		this.changeStateTo(FrameStates.packing)
 		let distance = stagesPositions.inspector.top - stagesPositions.paintingMachine.top
 		let transitionDuration = getTransitionDurationMiliseconds(distance)
 
@@ -124,7 +134,7 @@ class Frame{
 
 			await sleep(packingTime)
 			playPackingMachineSound()
-			this.changeStateTo(FrameStates.packed)
+			if (!timeOver()) this.changeStateTo(FrameStates.packed)
 		}
 	}
 
@@ -145,7 +155,7 @@ class Frame{
 
 		await sleep(paintingTime)
 		playPaintingMachineSound()
-		this.changeStateTo(FrameStates.painted)
+		if(!timeOver()) this.changeStateTo(FrameStates.painted)
 	}
 
 	async moveToWareHouse() {
@@ -200,7 +210,7 @@ class Frame{
 		this.HTMLElement.className = 'obj frame assembling state2'
 
 		await sleep(waitingTime / 3)
-		this.changeStateTo(FrameStates.assembled)
+		if(!timeOver()) this.changeStateTo(FrameStates.assembled)
 	}
 
 	changeStateTo(frameState) {
@@ -227,6 +237,7 @@ const FrameStates = {
 	inWarehouse: 'inWarehouse',
 	painting: 'painting',
 	painted: 'painted',
+	packing: 'packing',
 	packed: 'packed',
 	inTruck: 'inTruck'
 }
@@ -265,7 +276,7 @@ const stagesPositions = {
 }
 
 const config = {
-	hoursToSimulate: 6,
+	hoursToSimulate: 100,
 
 	isFramesGroupRandomRange: false,
 	minFramesPerGroup: 4,
@@ -276,12 +287,12 @@ const config = {
 
 	frameRequiredTime : {
 		hoursToAssemblyRange: [2, 6],
-		hoursInWareHouse: 5,
+		hoursInWareHouse: 24,
 		minutesInPaintingMachineRange: [10, 20],
 		minutesInPackMachineRange: [10, 15]
 	},
 
-	lineSpeed: 50,
+	lineSpeed: 200,
 	declineFrameProbability: 0.30
 }
 
@@ -298,6 +309,7 @@ const initialState = {
 }
 
 let updateStatsInterval
+let timerInterval
 
 const factoryAudio = new Audio('assets/sounds/factory.mp3')
 const factory2Audio = new Audio('assets/sounds/factory2.mp3')
@@ -307,10 +319,12 @@ const hammerAudio = new Audio('assets/sounds/hammer.mp3')
 const packingMachineAudio = new Audio('assets/sounds/packMachine.mp3')
 const truckAudio = new Audio('assets/sounds/truck.mp3')
 
+//Grafic element
 const factoryContainerElement = document.querySelector('.factory-container');
 const inspectorElement = document.querySelector('.inspector');
 const truckElement = document.querySelector('.truck');
 
+//Stats spans
 const elapsedHoursSpan = document.getElementById('elapsedHoursSpan');
 
 const framesInWaitingLineSpan = document.getElementById('framesInWaitingLineSpan');
@@ -322,7 +336,19 @@ const framesInTruckSpan = document.getElementById('framesInTruckSpan');
 
 const startButton = document.getElementById('startButton');
 
+//Inputs
+const hoursToSimulateInput = document.getElementById('hoursToSimulateInput');
+const elapseHoursBetweenGroupsInput = document.getElementById('elapseHoursBetweenGroupsInput');
+const requiredHoursInWareHouseInput = document.getElementById('requiredHoursInWareHouseInput');
+const lineSpeedInput = document.getElementById('lineSpeedInput');
+const declineFrameProbabilityInput = document.getElementById('declineFrameProbabilityInput');
 
+main()
+
+function main() {
+	addListenersToInputs()
+	showInitialConfigValues()
+}
 
 function handleStartClick() {
 	//Iniciar llegada de marcos cada 5 horas en promedio */
@@ -346,6 +372,7 @@ function startSimulation() {
 	initIncomingFramesLoop()
 	initStatsUpdateInterval()
 	playFactoryAmbientSound()
+	startTimerInteval()
 }
 
 function updateStats() {
@@ -354,8 +381,34 @@ function updateStats() {
 	framesInWarehousepanSpan.innerHTML = state.frames.filter(frame => frame.State == FrameStates.inWarehouse).length
 	framesInPaintingMachineSpan.innerHTML = state.frames.filter(frame => frame.State == FrameStates.painting).length
 	rejectedFramesSpan.innerHTML = state.frames.filter(frame => frame.WasRejected).length
-	framesInPackingMachineSpam.innerHTML = state.frames.filter(frame => frame.State == FrameStates.painted && !frame.WasRejected).length
-	framesInTruckSpan.innerHTML = state.frames.filter(frame => frame.State == FrameStates.packed).length
+	framesInPackingMachineSpam.innerHTML = state.frames.filter(frame => frame.State == FrameStates.packing && !frame.WasRejected).length
+	framesInTruckSpan.innerHTML = state.frames.filter(frame => frame.State == FrameStates.inTruck || frame.State == FrameStates.packed).length
+}
+
+function addListenersToInputs() {
+	hoursToSimulateInput.addEventListener('change', () => {
+		config.hoursToSimulate = hoursToSimulateInput.value
+	})
+	elapseHoursBetweenGroupsInput.addEventListener('change', () => {
+		config.elapseHoursBetweenGroups = elapseHoursBetweenGroupsInput.value
+	})
+	requiredHoursInWareHouseInput.addEventListener('change', () => {
+		config.frameRequiredTime.hoursInWareHouse = requiredHoursInWareHouseInput.value
+	})
+	lineSpeedInput.addEventListener('change', () => {
+		config.lineSpeed = lineSpeedInput.value
+	})
+	declineFrameProbabilityInput.addEventListener('change', () => {
+		config.declineFrameProbability = declineFrameProbabilityInput.value / 100
+	})
+}
+
+function showInitialConfigValues() {
+	hoursToSimulateInput.value = config.hoursToSimulate
+	elapseHoursBetweenGroupsInput.value = config.elapseHoursBetweenGroups
+	requiredHoursInWareHouseInput.value = config.frameRequiredTime.hoursInWareHouse
+	lineSpeedInput.value = config.lineSpeed
+	declineFrameProbabilityInput.value = config.declineFrameProbability * 100
 }
 
 async function initIncomingFramesLoop() {
@@ -364,17 +417,22 @@ async function initIncomingFramesLoop() {
 
 	while (state.elapsedHours + randomElapsedHours <= config.hoursToSimulate && state.simulationStart) {
 
+		addRandomNewFramesToWaitingLine()
 
 		await sleep(randomElapsedHours * 1000)
 
-		addRandomNewFramesToWaitingLine()
-
-		state.elapsedHours += randomElapsedHours
 		updateStats()
 		randomElapsedHours = getRandomElapseHoursBetweenGroups()
 	}
 	state.elapsedHours = config.hoursToSimulate
+	clearInterval(timerInterval)
 	updateStats()
+}
+
+function startTimerInteval() {
+	timerInterval = setInterval(() => {
+		state.elapsedHours++
+	}, 1000);
 }
 
 function getRandomElapseHoursBetweenGroups() {
@@ -398,6 +456,11 @@ function addNewFrameToWaitingLine() {
 	let frame = new Frame()
 	frame.CarpenterNumber = randomIntFromInterval(1, 5)
 
+	const thereIsAnControlFrameAlready = state.frames.some(frame => frame.IsControl)
+	if (!thereIsAnControlFrameAlready) {
+		frame.IsControl = true
+	}
+
 	frame.HTMLElement.style.top = frame.CarpenterNumber > 1 ? (150 * (frame.CarpenterNumber - 1) + 75) + 'px' : 75 + 'px'
 	frame.HTMLElement.style.right = 0
 
@@ -407,6 +470,12 @@ function addNewFrameToWaitingLine() {
 		
 		frame.moveToNextStage()
 	})
+}
+
+function timeOver() {
+	if (state.elapsedHours >= config.hoursToSimulate) {
+		return true
+	}
 }
 
 function getRandomFrameGroupCount() {
@@ -424,6 +493,41 @@ function getRandomFrameGroupCount() {
 
 	}
 	return framesAmount
+}
+
+
+function initStatsUpdateInterval() {
+	updateStatsInterval = setInterval(() => {
+		updateStats()
+		checkTruckForDeparture()
+	}, 500);
+}
+
+function checkTruckForDeparture() {
+	let framesIntruck = state.frames.filter(frame => frame.State == FrameStates.inTruck).length
+	let rejectedFrames = state.frames.filter(frame => frame.WasRejected).length
+	let packedFrames = state.frames.filter(frame => frame.State == FrameStates.packed).length
+
+	if (((framesIntruck == state.frames.length - rejectedFrames) && state.frames.length > 0) || timeOver() && packedFrames == 0) {
+		endSimulation()
+	}
+}
+
+function endSimulation() {
+	dispatchTruck()
+	factory2Audio.pause()
+	clearInterval(updateStatsInterval)
+	startButton.innerHTML = 'Reiniciar simulacion'
+	state.simulationStart = false
+}
+
+async function dispatchTruck() {
+	truckAudio.play()
+	truckElement.style.top = -372 + 'px'
+	for (let i = 1; i <= 9; i++) {
+		await sleep(1000)
+		truckAudio.volume = 1 - (i/10)
+	}
 }
 
 function sleep(ms) {
@@ -453,35 +557,4 @@ function playPackingMachineSound() {
 function playPaintingMachineSound() {
 	sprayAudio.volume = 0.3
 	sprayAudio.play()
-}
-
-function initStatsUpdateInterval() {
-	updateStatsInterval = setInterval(() => {
-		updateStats()
-		checkTruckForDeparture()
-	}, 500);
-}
-
-function checkTruckForDeparture() {
-	debugger
-	let framesIntruck = state.frames.filter(frame => frame.State == FrameStates.inTruck).length
-	let rejectedFrames = state.frames.filter(frame => frame.WasRejected).length
-	if ((framesIntruck == state.frames.length - rejectedFrames) && state.frames.length > 0) {
-		endSimulation()
-	}
-}
-
-function endSimulation() {
-	dispatchTruck();
-	factory2Audio.pause();
-	clearInterval(updateStatsInterval);
-}
-
-async function dispatchTruck() {
-	truckAudio.play()
-	truckElement.style.top = -372 + 'px'
-	for (let i = 1; i <= 9; i++) {
-		await sleep(1000)
-		truckAudio.volume = 1 - (i/10)
-	}
 }
