@@ -518,7 +518,6 @@ function endSimulation() {
 	factory2Audio.pause()
 	clearInterval(updateStatsInterval)
 	startButton.innerHTML = 'Reiniciar simulacion'
-	state.simulationStart = false
 }
 
 async function dispatchTruck() {
