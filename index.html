@@ -48,6 +48,10 @@
 						<input type="number" class="form-control" id="declineFrameProbabilityInput" placeholder=".">
 						<label for="">%Probabilidad rechazo de marco</label>
 					</div>
+					<div class="form-floating mb-2">
+						<input type="number" class="form-control" id="paintingMachineCapacityInput" placeholder=".">
+						<label for="">Capacidad maquina de pintura</label>
+					</div>
 					<div class="form-check" title="Terminar todos los marcos aunque acabe el tiempo de simulacion">
 						<input class="form-check-input" type="checkbox" value="" id="finishEveryFrameInFactoryCheckBox">
 						<label class="form-check-label" for="finishEveryFrameInFactoryCheckBox">
@@ -69,6 +73,20 @@
 						<div class="obj pack-machine"></div>
 						<div class="obj inspector"></div>
 						<div class="obj truck"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="reparingDialog" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+			aria-labelledby="staticBackdropLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content py-5">
+					<div class="modal-body">
+						<div class="d-flex flex-column w-100">
+							<h5 class="mx-auto">La maquina de pintura esta siendo reparada</h5>
+							<div class="loader mx-auto"></div>
+							<span class="mx-auto" id="timeLeftToinishRepairSpan"></span>
+						</div>
 					</div>
 				</div>
 			</div>

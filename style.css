@@ -159,3 +159,24 @@ input.form-control:focus{
 	outline: none;
 	box-shadow: none;
 }
+
+.loader{
+	height: 50px;
+	width: 50px;
+	display: block;
+	border-radius: 50%;
+	border-top: 3px solid orange;
+	animation-duration: 500ms;
+	animation-name: spin;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear
+}
+
+@keyframes spin {
+	0%{
+		transform: rotate(0deg);
+	}
+	100%{
+		transform: rotate(360deg);
+	}
+}

@@ -12,13 +12,16 @@ class Frame{
 		state.frames.push(this)
 	}
 	async moveToNextStage() {
+		while (state.repairingPaintingMachine) {
+			await sleep(1000)
+		}
 
 		if (timeOver() && !config.finishEveryFrameInFactory) {
 			return
 		}
 
 		if (this.State == FrameStates.disassembled) {
-			while (this.IsCarpenterBusy()) {
+			while (this.IsCarpenterBusy() || state.repairingPaintingMachine) {
 				await sleep(1000)
 			}
 		}
@@ -154,8 +157,13 @@ class Frame{
 		)
 
 		await sleep(paintingTime)
-		playPaintingMachineSound()
-		if (!timeOver() || config.finishEveryFrameInFactory) this.changeStateTo(FrameStates.painted)
+
+		if (!timeOver() || config.finishEveryFrameInFactory) {
+			state.paintedFramesSinceLastRepairCount++
+			this.changeStateTo(FrameStates.painted)
+			playPaintingMachineSound()
+			checkPaintingMachineForRepair()
+		}
 	}
 
 	async moveToWareHouse() {
@@ -294,13 +302,17 @@ const config = {
 
 	lineSpeed: 200,
 	declineFrameProbability: 0.30,
-	finishEveryFrameInFactory: false
+	finishEveryFrameInFactory: false,
+	pauseToRepairPaintinMachineMinutesArray: [120, 300, 600],
+	paintingMachineCapacity: 20
 }
 
 const state = {
 	frames: [],
 	elapsedHours: 0,
-	simulationStart: false
+	simulationStart: false,
+	repairingPaintingMachine: false,
+	paintedFramesSinceLastRepairCount: 0
 }
 
 const initialState = {
@@ -334,6 +346,7 @@ const framesInPaintingMachineSpan = document.getElementById('framesInPaintingMac
 const rejectedFramesSpan = document.getElementById('rejectedFramesSpan');
 const framesInPackingMachineSpam = document.getElementById('framesInPackingMachine');
 const framesInTruckSpan = document.getElementById('framesInTruckSpan');
+const timeLeftToinishRepairSpan = document.getElementById('timeLeftToinishRepairSpan');
 
 const startButton = document.getElementById('startButton');
 
@@ -343,6 +356,7 @@ const elapseHoursBetweenGroupsInput = document.getElementById('elapseHoursBetwee
 const requiredHoursInWareHouseInput = document.getElementById('requiredHoursInWareHouseInput');
 const lineSpeedInput = document.getElementById('lineSpeedInput');
 const declineFrameProbabilityInput = document.getElementById('declineFrameProbabilityInput');
+const paintingMachineCapacityInput = document.getElementById('paintingMachineCapacityInput');
 
 const finishEveryFrameInFactoryCheckBox = document.getElementById('finishEveryFrameInFactoryCheckBox');
 
@@ -407,6 +421,9 @@ function addListenersToInputs() {
 	finishEveryFrameInFactoryCheckBox.addEventListener('change', () => {
 		config.finishEveryFrameInFactory = finishEveryFrameInFactoryCheckBox.checked
 	})
+	paintingMachineCapacityInput.addEventListener('change', () => {
+		config.paintingMachineCapacity = paintingMachineCapacityInput.value
+	})
 }
 
 function showInitialConfigValues() {
@@ -415,6 +432,24 @@ function showInitialConfigValues() {
 	requiredHoursInWareHouseInput.value = config.frameRequiredTime.hoursInWareHouse
 	lineSpeedInput.value = config.lineSpeed
 	declineFrameProbabilityInput.value = config.declineFrameProbability * 100
+	paintingMachineCapacityInput.value = config.paintingMachineCapacity
+}
+
+function getRandomPauseToRepairPaintingMachine() {
+	let index = randomIntFromInterval(0, 2)
+	return config.pauseToRepairPaintinMachineMinutesArray[index]
+}
+
+async function repairPaintingMachine() {
+	let repairTimeMinutes = getRandomPauseToRepairPaintingMachine()
+	let repairTimeHours = repairTimeMinutes / 60
+
+	state.repairingPaintingMachine = true
+	for (let i = repairTimeHours; i > 0; i--) {
+		timeLeftToinishRepairSpan.innerHTML = i + ' segundos restantes'
+		await sleep(1000)
+	}
+	state.repairingPaintingMachine = false
 }
 
 async function initIncomingFramesLoop() {
@@ -507,6 +542,20 @@ function initStatsUpdateInterval() {
 		updateStats()
 		checkTruckForDeparture()
 	}, 500);
+}
+
+async function checkPaintingMachineForRepair() {
+	
+	if (state.paintedFramesSinceLastRepairCount >= config.paintingMachineCapacity && !state.repairingPaintingMachine) {
+		
+		let reparingDialog = new bootstrap.Modal(document.getElementById('reparingDialog'))
+		reparingDialog.show()
+
+		await repairPaintingMachine()
+
+		reparingDialog.hide()
+		state.paintedFramesSinceLastRepairCount = 0
+	}
 }
 
 function checkTruckForDeparture() {
