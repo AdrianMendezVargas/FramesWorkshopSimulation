@@ -13,7 +13,7 @@ class Frame{
 	}
 	async moveToNextStage() {
 
-		if (timeOver()) {
+		if (timeOver() && !config.finishEveryFrameInFactory) {
 			return
 		}
 
@@ -51,7 +51,7 @@ class Frame{
 	}
 
 	IsCarpenterBusy() {
-		if (state.elapsedHours >= config.hoursToSimulate) {
+		if (state.elapsedHours >= config.hoursToSimulate && !config.finishEveryFrameInFactory) {
 			return true
 		}
 
@@ -134,7 +134,7 @@ class Frame{
 
 			await sleep(packingTime)
 			playPackingMachineSound()
-			if (!timeOver()) this.changeStateTo(FrameStates.packed)
+			if (!timeOver() || config.finishEveryFrameInFactory) this.changeStateTo(FrameStates.packed)
 		}
 	}
 
@@ -155,7 +155,7 @@ class Frame{
 
 		await sleep(paintingTime)
 		playPaintingMachineSound()
-		if(!timeOver()) this.changeStateTo(FrameStates.painted)
+		if (!timeOver() || config.finishEveryFrameInFactory) this.changeStateTo(FrameStates.painted)
 	}
 
 	async moveToWareHouse() {
@@ -210,7 +210,7 @@ class Frame{
 		this.HTMLElement.className = 'obj frame assembling state2'
 
 		await sleep(waitingTime / 3)
-		if(!timeOver()) this.changeStateTo(FrameStates.assembled)
+		if (!timeOver() || config.finishEveryFrameInFactory) this.changeStateTo(FrameStates.assembled)
 	}
 
 	changeStateTo(frameState) {
@@ -293,7 +293,8 @@ const config = {
 	},
 
 	lineSpeed: 200,
-	declineFrameProbability: 0.30
+	declineFrameProbability: 0.30,
+	finishEveryFrameInFactory: false
 }
 
 const state = {
@@ -342,6 +343,8 @@ const elapseHoursBetweenGroupsInput = document.getElementById('elapseHoursBetwee
 const requiredHoursInWareHouseInput = document.getElementById('requiredHoursInWareHouseInput');
 const lineSpeedInput = document.getElementById('lineSpeedInput');
 const declineFrameProbabilityInput = document.getElementById('declineFrameProbabilityInput');
+
+const finishEveryFrameInFactoryCheckBox = document.getElementById('finishEveryFrameInFactoryCheckBox');
 
 main()
 
@@ -400,6 +403,9 @@ function addListenersToInputs() {
 	})
 	declineFrameProbabilityInput.addEventListener('change', () => {
 		config.declineFrameProbability = declineFrameProbabilityInput.value / 100
+	})
+	finishEveryFrameInFactoryCheckBox.addEventListener('change', () => {
+		config.finishEveryFrameInFactory = finishEveryFrameInFactoryCheckBox.checked
 	})
 }
 
@@ -508,7 +514,7 @@ function checkTruckForDeparture() {
 	let rejectedFrames = state.frames.filter(frame => frame.WasRejected).length
 	let packedFrames = state.frames.filter(frame => frame.State == FrameStates.packed).length
 
-	if (((framesIntruck == state.frames.length - rejectedFrames) && state.frames.length > 0) || timeOver() && packedFrames == 0) {
+	if (((framesIntruck == state.frames.length - rejectedFrames) && state.frames.length > 0) || timeOver() && (packedFrames == 0 && !config.finishEveryFrameInFactory)) {
 		endSimulation()
 	}
 }
